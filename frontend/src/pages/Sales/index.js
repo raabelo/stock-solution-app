@@ -27,11 +27,12 @@ import {
     TrashCan,
 } from "akar-icons";
 import ShrinkBtn from "../../components/ui/shrink.btn";
+import getMensagemErroApi from "../../utils/functions/getMensagemErroApi";
 
 //settings
 const columns = [
     { field: "id", headerName: "id", width: 25 },
-    { field: "seller", headerName: "Vendedor", width: 200 },
+    { field: "userName", headerName: "Vendedor", width: 200 },
     { field: "sellingDate", headerName: "Data", width: 150 },
     { field: "totalValue", headerName: "Valor", width: 150 },
     { field: "paymentMethod", headerName: "Método", width: 125 },
@@ -56,7 +57,7 @@ const Sales = ({ user, setAuth }) => {
     //form fields
     const [sellingDate, setSellingDate] = useState(new Date());
     const [totalValue, setTotalValue] = useState(0);
-    const [paymentMethod, setPaymentMethod] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState(0);
     const [status, setStatus] = useState("");
     const [userId, setUserId] = useState(1);
 
@@ -80,7 +81,7 @@ const Sales = ({ user, setAuth }) => {
                         res.data.forEach((element) => {
                             aux.push({
                                 ...element,
-                                seller: users?.find((e) => e.id === element.userId).name,
+                                userName: users?.find((e) => e.id === element.userId).name,
                             });
                         });
                         setSalesList(res.data);
@@ -89,15 +90,15 @@ const Sales = ({ user, setAuth }) => {
                     });
                 })
                 .catch((err) => {
-                    console.log(err);
-                    throw Error;
+                    const msgErro = getMensagemErroApi(err);
+                    toast.error(msgErro);
+                    throw err;
                 });
         };
 
         toast.promise(req(), {
             loading: "Carregando...",
             success: "Vendas carregadas!",
-            error: "Erro, tente novamente mais tarde",
         });
     };
 
@@ -114,7 +115,9 @@ const Sales = ({ user, setAuth }) => {
                     return;
                 }
                 setUsers(res.data);
-                setUserId(res.data[0].id);
+                if (res.data.length > 0) {
+                    setUserId(res.data[0].id);
+                }
                 console.log(res);
             })
             .catch((err) => {
@@ -124,7 +127,7 @@ const Sales = ({ user, setAuth }) => {
     };
 
     const handleSave = async () => {
-        let req = async () => {};
+        let req = async () => { };
 
         let statuscode;
         let errMsg = "";
@@ -133,7 +136,6 @@ const Sales = ({ user, setAuth }) => {
             sellingDate: sellingDate,
             totalValue: totalValue,
             paymentMethod: paymentMethod,
-            status: status,
             userId: userId,
             // userId: 1,
         };
@@ -157,8 +159,9 @@ const Sales = ({ user, setAuth }) => {
                         loadContent();
                     })
                     .catch((err) => {
-                        console.log(err);
-                        throw Error;
+                        const msgErro = getMensagemErroApi(err);
+                        toast.error(msgErro);
+                        throw err;
                     });
             };
         } else {
@@ -180,8 +183,9 @@ const Sales = ({ user, setAuth }) => {
                         loadContent();
                     })
                     .catch((err) => {
-                        console.log(err);
-                        throw Error;
+                        const msgErro = getMensagemErroApi(err);
+                        toast.error(msgErro);
+                        throw err;
                     });
             };
         }
@@ -205,7 +209,6 @@ const Sales = ({ user, setAuth }) => {
         toast.promise(req(), {
             loading: "Salvando...",
             success: "Venda salva!",
-            error: `Erro: ${errMsg}`,
         });
     };
 
@@ -225,15 +228,15 @@ const Sales = ({ user, setAuth }) => {
                         loadContent();
                     })
                     .catch((err) => {
-                        console.log(err);
-                        throw Error;
+                        const msgErro = getMensagemErroApi(err);
+                        toast.error(msgErro);
+                        throw err;
                     });
             };
 
             toast.promise(req(), {
                 loading: "Deletando...",
                 success: "Venda excluida!",
-                error: "Erro, tente novamente mais tarde!",
             });
         }
     };
@@ -254,15 +257,15 @@ const Sales = ({ user, setAuth }) => {
                         loadContent();
                     })
                     .catch((err) => {
-                        console.log(err);
-                        throw Error;
+                        const msgErro = getMensagemErroApi(err);
+                        toast.error(msgErro);
+                        throw err;
                     });
             };
 
             toast.promise(req(), {
                 loading: "Cancelando venda...",
                 success: "Venda cancelada!",
-                error: "Erro, tente novamente mais tarde!",
             });
         }
     };
@@ -283,15 +286,15 @@ const Sales = ({ user, setAuth }) => {
                         loadContent();
                     })
                     .catch((err) => {
-                        console.log(err);
-                        throw Error;
+                        const msgErro = getMensagemErroApi(err);
+                        toast.error(msgErro);
+                        throw err;
                     });
             };
 
             toast.promise(req(), {
                 loading: "Finalizando venda...",
-                success: "Venda finalizada!",
-                error: "Erro, tente novamente mais tarde!",
+                success: "Venda finalizada!"
             });
         }
     };
@@ -445,6 +448,8 @@ const Sales = ({ user, setAuth }) => {
                                     <IconBtn
                                         onClick={() => {
                                             if (selected) {
+                                                console.log(selected);
+
                                                 setSellingDate(selected?.sellingDate.split("T")[0]);
                                                 setTotalValue(selected?.totalValue);
                                                 setPaymentMethod(selected?.paymentMethod);
@@ -511,13 +516,13 @@ const Sales = ({ user, setAuth }) => {
                                 <div>
                                     <p className="p-text">Método de pagamento</p>
                                     <select
-                                        value={userId}
-                                        onChange={(e) => setUserId(e.currentTarget.value)}
+                                        value={paymentMethod}
+                                        onChange={(e) => setPaymentMethod(parseInt(e.currentTarget.value, 10))}
                                     >
-                                        <option value={"Débito"}>{"Débito"}</option>
-                                        <option value={"Crédito"}>{"Crédito"}</option>
-                                        <option value={"Dinheiro"}>{"Dinheiro"}</option>
-                                        <option value={"Boleto"}>{"Boleto"}</option>
+                                        <option value={0}>{"Débito"}</option>
+                                        <option value={1}>{"Crédito"}</option>
+                                        <option value={2}>{"Dinheiro"}</option>
+                                        <option value={3}>{"Boleto"}</option>
                                     </select>
                                 </div>
 
