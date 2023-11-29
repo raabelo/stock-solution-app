@@ -2,6 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Step-by-step
+- Clone the entire repository `git clone https://github.com/raabelo/stock-solution-app`
+- Open the cloned repository `cd stock-solution-app`
+- Open the front-end folder `cd frontend`
+- Install the dependencies `npm i`
+- Run the project locally `npm start`
+
 ## Available Scripts
 
 In the project directory, you can run:
